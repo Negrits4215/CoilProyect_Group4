@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "conio.h": "c",
+        "time.h": "c",
+        "stdint.h": "c",
+        "display.h": "c",
+        "bird.h": "c",
+        "string.h": "c"
+    }
+}
