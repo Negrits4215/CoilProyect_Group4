@@ -13,7 +13,7 @@
 
 #define HEIGHT 30 //Cambiar este define por la ALTURA del display al hacer la pantalla
 #define WIDTH 80
-#define PERIOD (1./120.) //milisecond
+#define PERIOD (1./60.) //milisecond
 
 /*******************************************************************************
     TYPEDEF & STRUCT

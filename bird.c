@@ -46,8 +46,8 @@ void birdInit(){
     flappyBird.velx = 1.0;
     flappyBird.vely = 0;
     flappyBird.possx = POSS_X;
-    flappyBird.possy = 25; //setBirdHeight();
-    flappyBird.floaposs = 25.; //(float)setBirdHeight();
+    flappyBird.possy = setBirdHeight();
+    flappyBird.floaposs = (float)flappyBird.possy; 
 
     flappyBird.flap = jump;
     flappyBird.updateBird = update;
