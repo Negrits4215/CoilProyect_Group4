@@ -1,91 +1,43 @@
-/*******************************************************************************
-    HEADERS
-*******************************************************************************/
-
-#include <stdint.h>
 #include <stdio.h>
 #include <windows.h>
-#include "display.h"
 #include "bird.h"
+#include "constants.h"
 
-/*******************************************************************************
-    PREPROCESSING DEFINITIONS
-*******************************************************************************/
+extern Pipe pipes[];
 
-/*******************************************************************************
-    TYPEDEF & STRUCT
-*******************************************************************************/
-
-/*******************************************************************************
-    GLOBAL PUBLIC VARIABLE PROTOTYPE
-*******************************************************************************/
-
-/*******************************************************************************
-    GLOBAL STATIC CONST VARIABLE
-*******************************************************************************/
-
-/*******************************************************************************
-    GLOBAL STATIC VARIABLE
-*******************************************************************************/
-
-/*******************************************************************************
-    PRIVATE FUNCTION PROTOTYPE
-*******************************************************************************/
-
-static void limpiarBuffer(HANDLE);
-
-/*******************************************************************************
-    DEFINITION OF GLOBAL FUNCTION
-*******************************************************************************/
-
-void printGame(){
-    uint8_t x,y;
-
-    for (y = 0; y < HEIGHT; y++){
-        for (x = 0; x < WIDTH; x++){
-            if (y == 0 || y == (HEIGHT - 1)){
-                printf("-");
-            }
-            else if(y == (HEIGHT - flappyBird.possy) && x == flappyBird.possx){
-                printf("*");
-            }
-            else{
-                printf(" ");        //FALTA AÑADIR EL PRINT DE LOS TUBOS
-            }
-        }
-        printf("\n");
-        
-    }
-    
+void clearScreen() {
+    COORD topLeft = {0, 0};
+    HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleCursorPosition(console, topLeft);
 }
 
-void drawBuffer(HANDLE hBuffer) {
-    int i, j;
+void draw(int score) {
+    clearScreen();
 
-    limpiarBuffer(hBuffer);
+    char screen[SCREEN_HEIGHT][SCREEN_WIDTH];
+    for (int y = 0; y < SCREEN_HEIGHT; y++)
+        for (int x = 0; x < SCREEN_WIDTH; x++)
+            screen[y][x] = ' ';
 
-    for (i = 0; i < HEIGHT; i++) {
-        DWORD written;
-        for (j = 0; j < WIDTH; j++) {
-            if (i == 0 || i == (HEIGHT - 1)){
-                WriteConsoleOutputCharacter(hBuffer, "-", 1, (COORD){j, i}, &written);
+    for (int i = 0; i < NUM_PIPES; i++) {
+        if (pipes[i].x >= 0 && pipes[i].x < SCREEN_WIDTH) {
+            for (int y = 0; y < SCREEN_HEIGHT; y++) {
+                if (y < pipes[i].gapY || y > pipes[i].gapY + PIPE_GAP)
+                    screen[y][pipes[i].x] = '|';
             }
-            else if(i == (HEIGHT - flappyBird.possy) && j == flappyBird.possx){
-                WriteConsoleOutputCharacter(hBuffer, "*", 1, (COORD){j, i}, &written);
-            }
-            else{
-                WriteConsoleOutputCharacter(hBuffer, " ", 1, (COORD){j, i}, &written);        //FALTA AÑADIR EL PRINT DE LOS TUBOS
-            }
-            
         }
     }
-}
 
-/*******************************************************************************
-    DEFINITION OF LOCAL FUNCTION
-*******************************************************************************/
-static void limpiarBuffer(HANDLE hBuffer) {
-    DWORD charsWritten;
-    COORD coord = {0, 0};
-    FillConsoleOutputCharacter(hBuffer, ' ', HEIGHT * WIDTH, coord, &charsWritten);
+    int birdY = (int)bird.y;
+    if (birdY >= 0 && birdY < SCREEN_HEIGHT)
+        screen[birdY][bird.x] = 'O';
+
+    for (int y = 0; y < SCREEN_HEIGHT; y++) {
+        for (int x = 0; x < SCREEN_WIDTH; x++)
+            putchar(screen[y][x]);
+        putchar('\n');
+    }
+
+    printf("Score: %d\n", score);
+    printf("Press SPACE to flap!\n");
 }
