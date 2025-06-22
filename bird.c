@@ -1,87 +1,32 @@
-/*******************************************************************************
-    HEADERS
-*******************************************************************************/
-
-#include <stdint.h>
-#include <stdlib.h>
-#include <time.h>
+#include <conio.h>
 #include "bird.h"
+#include "constants.h"
 
-#define SCORE 10 //game score Cambiar/Remover al hacer struct game
+Bird bird;
 
-/*******************************************************************************
-    PREPROCESSING DEFINITIONS
-*******************************************************************************/
-
-/*******************************************************************************
-    TYPEDEF & STRUCT
-*******************************************************************************/
-
-/*******************************************************************************
-    GLOBAL PUBLIC VARIABLE PROTOTYPE
-*******************************************************************************/
-
-bird flappyBird;
-
-/*******************************************************************************
-    GLOBAL STATIC CONST VARIABLE
-*******************************************************************************/
-
-/*******************************************************************************
-    GLOBAL STATIC VARIABLE
-*******************************************************************************/
-
-/*******************************************************************************
-    PRIVATE FUNCTION PROTOTYPE
-*******************************************************************************/
-
-static uint8_t setBirdHeight();
-static void update();
-static void jump();
-
-/*******************************************************************************
-    DEFINITION OF GLOBAL FUNCTION
-*******************************************************************************/
-void birdInit(){
-    flappyBird.velx = 1.0;
-    flappyBird.vely = 0;
-    flappyBird.possx = POSS_X;
-    flappyBird.possy = setBirdHeight();
-    flappyBird.floaposs = (float)flappyBird.possy; 
-
-    flappyBird.flap = jump;
-    flappyBird.updateBird = update;
+void handleInput() {
+    if (_kbhit()) {
+        char c = _getch();
+        if (c == ' ') {
+            bird.velocity = JUMP_STRENGTH;
+        }
+    }
 }
 
-/*******************************************************************************
-    DEFINITION OF LOCAL FUNCTION
-*******************************************************************************/
+void updatePhysics() {
+    bird.velocity += GRAVITY;
 
-static uint8_t setBirdHeight(){
-    uint8_t ret;
-    uint32_t seed;
-    
-    seed = (uint32_t)time(NULL);
+    if (bird.velocity > MAX_FALL_SPEED)
+        bird.velocity = MAX_FALL_SPEED;
 
-    srand(seed);
-    ret = rand()%(POSS_YMAX - POSS_YMIN + 1) + POSS_YMIN;
+    bird.y += bird.velocity;
 
-    return ret;
-}
+    if (bird.y < 0) {
+        bird.y = 0;
+        bird.velocity = 0;
+    }
 
-static void update(){
-    
-
-    if(SCORE%10)
-        flappyBird.velx += SPEEDUP;
-
-    flappyBird.floaposs = flappyBird.floaposs + flappyBird.vely*PERIOD - ((MAVITY/2)*(PERIOD*PERIOD));
-    flappyBird.possy = (uint8_t)flappyBird.floaposs;
-
-    flappyBird.vely = flappyBird.vely - (MAVITY*PERIOD);
-
-}
-
-static void jump(){
-    flappyBird.vely = 10.;
+    if (bird.y >= SCREEN_HEIGHT - 1) {
+        bird.y = SCREEN_HEIGHT - 1;
+    }
 }
