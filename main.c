@@ -1,94 +1,125 @@
-/*******************************************************************************
-    HEADERS
-*******************************************************************************/
-
+#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <stdio.h>
 #include <windows.h>
 #include <conio.h>
-#include "display.h"
+#include "constants.h"
 #include "bird.h"
+#include "display.h"
 
-/*******************************************************************************
-    PREPROCESSING DEFINITIONS
-*******************************************************************************/
+typedef struct {
+    int x;
+    int gapY;
+    int passed;
+} Pipe;
 
-#define FRAMEDELAY (1000./60.) //60Hz
+Pipe pipes[NUM_PIPES];
+int score = 0;
 
-/*******************************************************************************
-    TYPEDEF & STRUCT
-*******************************************************************************/
+void initGame();
+void updatePipes();
+int checkCollision();
+void logScore();
+void waitForKeyRelease();
 
-/*******************************************************************************
-    GLOBAL PUBLIC VARIABLE PROTOTYPE
-*******************************************************************************/
+int main() {
+    int playAgain = 1;
 
-/*******************************************************************************
-    GLOBAL STATIC CONST VARIABLE
-*******************************************************************************/
+    while (playAgain) {
+        initGame();
 
-/*******************************************************************************
-    GLOBAL STATIC VARIABLE
-*******************************************************************************/
-
-/*******************************************************************************
-    PRIVATE FUNCTION PROTOTYPE
-*******************************************************************************/
-
-/*******************************************************************************
-    DEFINITION OF GLOBAL FUNCTION
-*******************************************************************************/
-
-/*******************************************************************************
-    DEFINITION OF LOCAL FUNCTION
-*******************************************************************************/
-
-int main(){
-    HANDLE hBuffer1 = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
-    HANDLE hBuffer2 = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
-
-    HANDLE currentBuffer = hBuffer1;
-    HANDLE nextBuffer = hBuffer2;
-
-    int quit = 1;
-    clock_t frameStart;
-    double frameTime;
-
-
-    birdInit();
-    
-
-    while (quit) {
-        frameStart = clock();
-
-        flappyBird.updateBird();
-
-        if (_kbhit()) {  // Si se presionó una tecla
-            int ch = _getch();
-            if (ch == 32) { // Código ASCII de barra espaciadora
-                flappyBird.flap();
-                flappyBird.updateBird();
-
-            }
-            if (ch == 27) { // Si querés permitir salir con ESC (ASCII 27)
-                quit = 0;
-            }
+        while (1) {
+            handleInput();
+            updatePhysics();
+            updatePipes();
+            draw(score);
+            if (checkCollision()) break;
+            Sleep(FRAME_TIME_MS);
         }
 
-        drawBuffer(currentBuffer);
+        printf("\nGame Over! Final Score: %d\n", score);
+        logScore();
 
-        SetConsoleActiveScreenBuffer(currentBuffer);
+        waitForKeyRelease();
 
+        printf("Press 'r' to play again, 'q' to quit...\n");
 
-        HANDLE temp = currentBuffer;
-        currentBuffer = nextBuffer;
-        nextBuffer = temp;
+        char choice;
+        do {
+            choice = _getch();
+        } while (choice != 'r' && choice != 'R' && choice != 'q' && choice != 'Q');
 
-
-        frameTime = (clock() - frameStart) * 1000.0 / CLOCKS_PER_SEC;
-        if (FRAMEDELAY > frameTime) {
-            Sleep((DWORD)(FRAMEDELAY - frameTime));
+        if (choice == 'q' || choice == 'Q') {
+            playAgain = 0;
+        } else {
+            clearScreen();
         }
+    }
+
+    return 0;
+}
+
+void initGame() {
+    bird.x = SCREEN_WIDTH / 4;
+    bird.y = SCREEN_HEIGHT / 2;
+    bird.velocity = 0;
+
+    srand((unsigned)time(NULL));
+    for (int i = 0; i < NUM_PIPES; i++) {
+        pipes[i].x = SCREEN_WIDTH + i * PIPE_DISTANCE;
+        pipes[i].gapY = rand() % (SCREEN_HEIGHT - PIPE_GAP - 2) + 1;
+        pipes[i].passed = 0;
+    }
+
+    score = 0;
+}
+
+void updatePipes() {
+    for (int i = 0; i < NUM_PIPES; i++) {
+        pipes[i].x--;
+
+        if (pipes[i].x < -1) {
+            pipes[i].x = SCREEN_WIDTH + PIPE_DISTANCE;
+            pipes[i].gapY = rand() % (SCREEN_HEIGHT - PIPE_GAP - 2) + 1;
+            pipes[i].passed = 0;
+        }
+
+        if (!pipes[i].passed && pipes[i].x + 1 < bird.x) {
+            score++;
+            pipes[i].passed = 1;
+        }
+    }
+}
+
+int checkCollision() {
+    int birdY = (int)bird.y;
+
+    if (birdY < 1 || birdY > SCREEN_HEIGHT - 2)
+        return 1;
+
+    for (int i = 0; i < NUM_PIPES; i++) {
+        if (pipes[i].x <= bird.x && pipes[i].x + 1 >= bird.x) {
+            if (birdY < pipes[i].gapY || birdY > pipes[i].gapY + PIPE_GAP)
+                return 1;
+        }
+    }
+
+    return 0;
+}
+
+void logScore() {
+    FILE *f = fopen("score.log", "a");
+    if (f) {
+        fprintf(f, "Score: %d\tTime: %ld\n", score, time(NULL));
+        fclose(f);
+    }
+}
+
+void waitForKeyRelease() {
+    while (_kbhit()) {
+        _getch();
+    }
+    while (_kbhit()) {
+        Sleep(10);
     }
 }
