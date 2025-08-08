@@ -2,7 +2,7 @@
 #define DISPLAY_H
 
 int handleInput();
-void draw(int);
+void draw(int, int);
 void clearScreen();
 void waitForKeyRelease();
 

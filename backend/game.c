@@ -4,12 +4,15 @@
 int score;
 int lifes;
 
-void gameInit(){
+void gameInit(int reset){
     birdInit();
     pipesInit();
 
-    score = 0;
-    lifes = 3;
+    if (reset) {
+        score = 0;
+        lifes = 3;
+    }
+    
 }
 
 void updateGame(int state){

@@ -14,34 +14,45 @@ void clearScreen() {
     SetConsoleCursorPosition(console, topLeft);
 }
 
-void draw(int score) {
+void draw(int score, int lifes) {
+    int y;
+    int x;
+    int i;
+
     clearScreen();
 
     char screen[SCREEN_HEIGHT][SCREEN_WIDTH];
-    for (int y = 0; y < SCREEN_HEIGHT; y++) {
-        for (int x = 0; x < SCREEN_WIDTH; x++) {
+    for (y = 0; y < SCREEN_HEIGHT; y++) {
+        for (x = 0; x < SCREEN_WIDTH; x++) {
             screen[y][x] = ' ';
         }
     }
-    for (int i = 0; i < NUM_PIPES; i++) {
+    for (i = 0; i < NUM_PIPES; i++) {
         if (pipes[i].x >= 0 && pipes[i].x < SCREEN_WIDTH) {
-            for (int y = 0; y < SCREEN_HEIGHT; y++) {
-                if (y < pipes[i].gapY || y > pipes[i].gapY + PIPE_GAP)
+            for (y = 0; y < SCREEN_HEIGHT; y++) {
+                if (y < pipes[i].gapY || y > pipes[i].gapY + PIPE_GAP) {
                     screen[y][pipes[i].x] = '|';
+                }
             }
         }
     }
 
     int birdY = (int)bird.y;
-    if (birdY >= 0 && birdY < SCREEN_HEIGHT)
+    if (birdY >= 0 && birdY < SCREEN_HEIGHT){
         screen[birdY][bird.x] = 'O';
-
-    for (int y = 0; y < SCREEN_HEIGHT; y++) {
-        for (int x = 0; x < SCREEN_WIDTH; x++)
+    }
+    for (y = 0; y < SCREEN_HEIGHT; y++) {
+        for (x = 0; x < SCREEN_WIDTH; x++) {
             putchar(screen[y][x]);
+        }
         putchar('\n');
     }
+    for(x = 0; x < SCREEN_WIDTH; x++) {
+        putchar('-');
+    }
+    putchar('\n');
 
+    printf("Lifes: %d\n", lifes);
     printf("Score: %d\n", score);
     printf("Press SPACE to flap!\n");
 }
@@ -73,3 +84,4 @@ void waitForKeyRelease() {
         Sleep(10);
     }
 }
+
