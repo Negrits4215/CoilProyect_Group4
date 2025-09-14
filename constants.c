@@ -5,6 +5,8 @@
  * such as banners, animations, and podium numbers.
  */
 
+#include "constants.h"
+
 const char *sing[] = {
     "  ███   ██  ██  ██ ████     ███  █    █ ████ ███  ",
     " █     █  █ ██████ █       █   █ █    █ █    █  █ ",
