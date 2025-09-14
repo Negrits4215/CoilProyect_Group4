@@ -1,9 +1,10 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
-int handleInput();
-void draw(int, int);
+int handleInput(int, ...);
+void draw(int, int, int);
 void clearScreen();
 void waitForKeyRelease();
+void consoleSetup();
 
 #endif

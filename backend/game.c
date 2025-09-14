@@ -1,5 +1,28 @@
+/*
+ * Public Functions (available through game.h):
+ * 
+ * gameInit() 
+ *   Initializes the game state. Calls birdInit() and pipesInit(). 
+ *   If reset is true, resets score to 0 and lifes to 3.
+ * 
+ * updateGame() 
+ *   Updates the physics of the bird and the position of the pipes. 
+ *   If the given state indicates an action (state == 1), makes 
+ *   the bird jump.
+ * 
+ * checkCollision() 
+ *   Checks if the bird collides with the ground, the ceiling, or 
+ *   any pipe. Returns 1 if a collision is detected. Also increases 
+ *   the score when the bird successfully passes a pipe.
+ * 
+ * -------------------------------------------------------------
+ * Private Functions:
+ *   (none in this file — all functions here are public)
+ */
+
 #include "bird.h"
 #include "pipes.h"
+#include "game.h"
 
 int score;
 int lifes;

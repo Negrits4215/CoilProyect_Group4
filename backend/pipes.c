@@ -1,3 +1,24 @@
+/*
+ * Public Functions (available through pipes.h):
+ * 
+ * pipesInit() 
+ *   Initializes the pipe array. Generates NUM_PIPES pipes 
+ *   with increasing horizontal offsets.
+ * 
+ * updatePipes() 
+ *   Updates the position of each pipe by moving it to the left. 
+ *   When a pipe goes off-screen, it is regenerated at the right 
+ *   side with a new random gap position.
+ * 
+ * -------------------------------------------------------------
+ * Private Functions (internal use only in this file):
+ * 
+ * genPipe() [static] 
+ *   Creates and returns a new Pipe object. Assigns its horizontal 
+ *   position based on the offset, sets a random vertical gap, 
+ *   and marks it as not yet passed.
+ */
+
 #include "pipes.h"
 #include "../constants.h"
 #include <stdlib.h>
